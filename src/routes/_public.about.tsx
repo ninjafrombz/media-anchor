@@ -40,7 +40,7 @@ function AboutPage() {
       </h1>
       <div className="article-body mt-8">
         {paragraphs.length > 0 ? (
-          paragraphs.map((p, i) => <p key={i}>{p}</p>)
+          paragraphs.map((p: string, i: number) => <p key={i}>{p}</p>)
         ) : (
           <p className="text-muted">No description has been added yet.</p>
         )}
