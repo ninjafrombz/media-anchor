@@ -147,7 +147,7 @@ function HomePage() {
             <span className="h-px flex-1 bg-line-strong" />
           </div>
           <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-            {rest.map((post) => (
+            {rest.map((post: Post) => (
               <PostCard key={post.id} post={post} />
             ))}
           </div>
