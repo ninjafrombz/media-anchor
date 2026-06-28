@@ -13,9 +13,12 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as PublicIndexRouteImport } from './routes/_public.index'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminNewRouteImport } from './routes/admin.new'
 import { Route as PublicVideosRouteImport } from './routes/_public.videos'
 import { Route as PublicBlogRouteImport } from './routes/_public.blog'
 import { Route as PublicAboutRouteImport } from './routes/_public.about'
+import { Route as AdminEditIdRouteImport } from './routes/admin.edit.$id'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public.blog.$slug'
 
 const AdminRoute = AdminRouteImport.update({
@@ -37,6 +40,16 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PublicRoute,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminNewRoute = AdminNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AdminRoute,
+} as any)
 const PublicVideosRoute = PublicVideosRouteImport.update({
   id: '/videos',
   path: '/videos',
@@ -52,6 +65,11 @@ const PublicAboutRoute = PublicAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => PublicRoute,
 } as any)
+const AdminEditIdRoute = AdminEditIdRouteImport.update({
+  id: '/edit/$id',
+  path: '/edit/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 const PublicBlogSlugRoute = PublicBlogSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -64,16 +82,22 @@ export interface FileRoutesByFullPath {
   '/about': typeof PublicAboutRoute
   '/blog': typeof PublicBlogRouteWithChildren
   '/videos': typeof PublicVideosRoute
+  '/admin/new': typeof AdminNewRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
+  '/admin/edit/$id': typeof AdminEditIdRoute
 }
 export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
   '/blog': typeof PublicBlogRouteWithChildren
   '/videos': typeof PublicVideosRoute
+  '/admin/new': typeof AdminNewRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/': typeof PublicIndexRoute
   '/admin': typeof AdminIndexRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
+  '/admin/edit/$id': typeof AdminEditIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -82,9 +106,12 @@ export interface FileRoutesById {
   '/_public/about': typeof PublicAboutRoute
   '/_public/blog': typeof PublicBlogRouteWithChildren
   '/_public/videos': typeof PublicVideosRoute
+  '/admin/new': typeof AdminNewRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/_public/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
+  '/admin/edit/$id': typeof AdminEditIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -94,10 +121,22 @@ export interface FileRouteTypes {
     | '/about'
     | '/blog'
     | '/videos'
+    | '/admin/new'
+    | '/admin/settings'
     | '/admin/'
     | '/blog/$slug'
+    | '/admin/edit/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/about' | '/blog' | '/videos' | '/' | '/admin' | '/blog/$slug'
+  to:
+    | '/about'
+    | '/blog'
+    | '/videos'
+    | '/admin/new'
+    | '/admin/settings'
+    | '/'
+    | '/admin'
+    | '/blog/$slug'
+    | '/admin/edit/$id'
   id:
     | '__root__'
     | '/_public'
@@ -105,9 +144,12 @@ export interface FileRouteTypes {
     | '/_public/about'
     | '/_public/blog'
     | '/_public/videos'
+    | '/admin/new'
+    | '/admin/settings'
     | '/_public/'
     | '/admin/'
     | '/_public/blog/$slug'
+    | '/admin/edit/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +187,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/new': {
+      id: '/admin/new'
+      path: '/new'
+      fullPath: '/admin/new'
+      preLoaderRoute: typeof AdminNewRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_public/videos': {
       id: '/_public/videos'
       path: '/videos'
@@ -165,6 +221,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/about'
       preLoaderRoute: typeof PublicAboutRouteImport
       parentRoute: typeof PublicRoute
+    }
+    '/admin/edit/$id': {
+      id: '/admin/edit/$id'
+      path: '/edit/$id'
+      fullPath: '/admin/edit/$id'
+      preLoaderRoute: typeof AdminEditIdRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_public/blog/$slug': {
       id: '/_public/blog/$slug'
@@ -206,11 +269,17 @@ const PublicRouteWithChildren =
   PublicRoute._addFileChildren(PublicRouteChildren)
 
 interface AdminRouteChildren {
+  AdminNewRoute: typeof AdminNewRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminEditIdRoute: typeof AdminEditIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminNewRoute: AdminNewRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminEditIdRoute: AdminEditIdRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
