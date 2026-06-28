@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as PublicIndexRouteImport } from './routes/_public.index'
+import { Route as PublicVideosRouteImport } from './routes/_public.videos'
+import { Route as PublicBlogRouteImport } from './routes/_public.blog'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -21,24 +23,45 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicVideosRoute = PublicVideosRouteImport.update({
+  id: '/videos',
+  path: '/videos',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicBlogRoute = PublicBlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => PublicRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
+  '/blog': typeof PublicBlogRoute
+  '/videos': typeof PublicVideosRoute
 }
 export interface FileRoutesByTo {
+  '/blog': typeof PublicBlogRoute
+  '/videos': typeof PublicVideosRoute
   '/': typeof PublicIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_public': typeof PublicRouteWithChildren
+  '/_public/blog': typeof PublicBlogRoute
+  '/_public/videos': typeof PublicVideosRoute
   '/_public/': typeof PublicIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/blog' | '/videos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/_public' | '/_public/'
+  to: '/blog' | '/videos' | '/'
+  id:
+    | '__root__'
+    | '/_public'
+    | '/_public/blog'
+    | '/_public/videos'
+    | '/_public/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -61,14 +84,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/videos': {
+      id: '/_public/videos'
+      path: '/videos'
+      fullPath: '/videos'
+      preLoaderRoute: typeof PublicVideosRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/blog': {
+      id: '/_public/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof PublicBlogRouteImport
+      parentRoute: typeof PublicRoute
+    }
   }
 }
 
 interface PublicRouteChildren {
+  PublicBlogRoute: typeof PublicBlogRoute
+  PublicVideosRoute: typeof PublicVideosRoute
   PublicIndexRoute: typeof PublicIndexRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
+  PublicBlogRoute: PublicBlogRoute,
+  PublicVideosRoute: PublicVideosRoute,
   PublicIndexRoute: PublicIndexRoute,
 }
 
