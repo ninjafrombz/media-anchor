@@ -14,7 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      posts: {
+        Row: {
+          body: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          embed_code: string | null
+          excerpt: string | null
+          id: string
+          publish_date: string
+          slug: string
+          status: string
+          thumbnail_url: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          embed_code?: string | null
+          excerpt?: string | null
+          id?: string
+          publish_date?: string
+          slug: string
+          status?: string
+          thumbnail_url?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          embed_code?: string | null
+          excerpt?: string | null
+          id?: string
+          publish_date?: string
+          slug?: string
+          status?: string
+          thumbnail_url?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          about_text: string
+          featured_post_id: string | null
+          id: number
+          site_name: string
+          updated_at: string
+        }
+        Insert: {
+          about_text?: string
+          featured_post_id?: string | null
+          id?: number
+          site_name?: string
+          updated_at?: string
+        }
+        Update: {
+          about_text?: string
+          featured_post_id?: string | null
+          id?: number
+          site_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settings_featured_post_id_fkey"
+            columns: ["featured_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
