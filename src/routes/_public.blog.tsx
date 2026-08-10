@@ -4,6 +4,7 @@ import { PostCard } from "@/components/post-card";
 
 export const Route = createFileRoute("/_public/blog")({
   loader: async () => ({ posts: await getPublishedPosts("blog") }),
+  staleTime: 5 * 60 * 1000,
   head: () => ({
     meta: [
       { title: "Blog — Akụkọ N'asụsụ Igbo" },

@@ -26,6 +26,7 @@ export const Route = createFileRoute("/_public/")({
     const rest = posts.filter((p) => p.id !== featured?.id).slice(0, 9);
     return { featured, rest };
   },
+  staleTime: 5 * 60 * 1000,
   head: () => ({
     meta: [
       { title: "Akụkọ N'asụsụ Igbo — Igbo Language Video & Editorial" },

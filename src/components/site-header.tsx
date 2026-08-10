@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 
 const NAV = [
   { label: "Home", to: "/" as const },
   { label: "Videos", to: "/videos" as const },
   { label: "Blog", to: "/blog" as const },
   { label: "About", to: "/about" as const },
+  { label: "Search", to: "/search" as const },
 ];
 
 export function SiteHeader({ siteName }: { siteName: string }) {
@@ -25,7 +26,7 @@ export function SiteHeader({ siteName }: { siteName: string }) {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {NAV.map((item) => (
+          {NAV.filter((item) => item.to !== "/search").map((item) => (
             <Link
               key={item.to}
               to={item.to}
@@ -36,6 +37,14 @@ export function SiteHeader({ siteName }: { siteName: string }) {
               {item.label}
             </Link>
           ))}
+          <Link
+            to="/search"
+            aria-label="Search"
+            activeProps={{ className: "!text-accent" }}
+            className="flex items-center text-paper/85 transition-colors hover:text-accent"
+          >
+            <Search className="h-[18px] w-[18px]" />
+          </Link>
         </nav>
 
         <button

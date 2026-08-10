@@ -8,6 +8,7 @@ export const Route = createFileRoute("/_public/blog/$slug")({
     if (!post) throw notFound();
     return { post };
   },
+  staleTime: 5 * 60 * 1000,
   head: ({ loaderData }) => {
     const post = loaderData?.post;
     if (!post) return {};

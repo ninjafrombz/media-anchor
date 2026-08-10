@@ -4,6 +4,7 @@ import { FacebookEmbed } from "@/components/facebook-embed";
 
 export const Route = createFileRoute("/_public/videos")({
   loader: async () => ({ videos: await getPublishedPosts("video") }),
+  staleTime: 5 * 60 * 1000,
   head: () => ({
     meta: [
       { title: "Videos — Akụkọ N'asụsụ Igbo" },

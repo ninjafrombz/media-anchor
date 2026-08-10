@@ -9,6 +9,7 @@ export const Route = createFileRoute("/_public/about")({
       aboutText: settings?.about_text ?? "",
     };
   },
+  staleTime: Infinity,
   head: ({ loaderData }) => ({
     meta: [
       { title: `About — ${loaderData?.siteName ?? "Akụkọ N'asụsụ Igbo"}` },

@@ -8,6 +8,7 @@ export const Route = createFileRoute("/_public")({
     const settings = await getSettings();
     return { siteName: settings?.site_name ?? "Akụkọ N'asụsụ Igbo" };
   },
+  staleTime: Infinity,
   component: PublicLayout,
 });
 

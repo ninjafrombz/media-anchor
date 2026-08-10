@@ -16,6 +16,7 @@ import { Route as PublicIndexRouteImport } from './routes/_public.index'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminNewRouteImport } from './routes/admin.new'
 import { Route as PublicVideosRouteImport } from './routes/_public.videos'
+import { Route as PublicSearchRouteImport } from './routes/_public.search'
 import { Route as PublicBlogRouteImport } from './routes/_public.blog'
 import { Route as PublicAboutRouteImport } from './routes/_public.about'
 import { Route as AdminEditIdRouteImport } from './routes/admin.edit.$id'
@@ -55,6 +56,11 @@ const PublicVideosRoute = PublicVideosRouteImport.update({
   path: '/videos',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicSearchRoute = PublicSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicBlogRoute = PublicBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/about': typeof PublicAboutRoute
   '/blog': typeof PublicBlogRouteWithChildren
+  '/search': typeof PublicSearchRoute
   '/videos': typeof PublicVideosRoute
   '/admin/new': typeof AdminNewRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
   '/blog': typeof PublicBlogRouteWithChildren
+  '/search': typeof PublicSearchRoute
   '/videos': typeof PublicVideosRoute
   '/admin/new': typeof AdminNewRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/_public/about': typeof PublicAboutRoute
   '/_public/blog': typeof PublicBlogRouteWithChildren
+  '/_public/search': typeof PublicSearchRoute
   '/_public/videos': typeof PublicVideosRoute
   '/admin/new': typeof AdminNewRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/about'
     | '/blog'
+    | '/search'
     | '/videos'
     | '/admin/new'
     | '/admin/settings'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
   to:
     | '/about'
     | '/blog'
+    | '/search'
     | '/videos'
     | '/admin/new'
     | '/admin/settings'
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/_public/about'
     | '/_public/blog'
+    | '/_public/search'
     | '/_public/videos'
     | '/admin/new'
     | '/admin/settings'
@@ -208,6 +220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicVideosRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/search': {
+      id: '/_public/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof PublicSearchRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/blog': {
       id: '/_public/blog'
       path: '/blog'
@@ -254,6 +273,7 @@ const PublicBlogRouteWithChildren = PublicBlogRoute._addFileChildren(
 interface PublicRouteChildren {
   PublicAboutRoute: typeof PublicAboutRoute
   PublicBlogRoute: typeof PublicBlogRouteWithChildren
+  PublicSearchRoute: typeof PublicSearchRoute
   PublicVideosRoute: typeof PublicVideosRoute
   PublicIndexRoute: typeof PublicIndexRoute
 }
@@ -261,6 +281,7 @@ interface PublicRouteChildren {
 const PublicRouteChildren: PublicRouteChildren = {
   PublicAboutRoute: PublicAboutRoute,
   PublicBlogRoute: PublicBlogRouteWithChildren,
+  PublicSearchRoute: PublicSearchRoute,
   PublicVideosRoute: PublicVideosRoute,
   PublicIndexRoute: PublicIndexRoute,
 }
@@ -291,3 +312,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

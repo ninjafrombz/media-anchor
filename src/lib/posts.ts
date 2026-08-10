@@ -100,6 +100,50 @@ export async function getPostById(id: string): Promise<Post | null> {
   return data;
 }
 
+export async function searchPosts(params: {
+  q?: string;
+  type?: "blog" | "video";
+  category?: string;
+}): Promise<Post[]> {
+  const { q, type, category } = params;
+  let query = supabase
+    .from("posts")
+    .select("*")
+    .eq("status", "published")
+    .order("publish_date", { ascending: false });
+
+  if (type) query = query.eq("type", type);
+  if (category) query = query.eq("category", category);
+  if (q && q.trim()) {
+    const term = `%${q.trim()}%`;
+    query = query.or(
+      `title.ilike.${term},excerpt.ilike.${term},description.ilike.${term}`,
+    );
+  }
+
+  const { data } = await query;
+  return data ?? [];
+}
+
+export async function getAllCategories(): Promise<string[]> {
+  const { data } = await supabase
+    .from("posts")
+    .select("category")
+    .eq("status", "published")
+    .not("category", "is", null);
+
+  if (!data) return [];
+  const seen = new Set<string>();
+  const cats: string[] = [];
+  for (const row of data) {
+    if (row.category && !seen.has(row.category)) {
+      seen.add(row.category);
+      cats.push(row.category);
+    }
+  }
+  return cats.sort();
+}
+
 export function formatDate(value: string): string {
   return new Date(value).toLocaleDateString("en-US", {
     year: "numeric",
