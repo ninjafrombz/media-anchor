@@ -16,7 +16,6 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
       new Headers(init.headers).forEach((value, key) => headers.set(key, value));
     }
 
-    // New Supabase API keys are opaque strings, not bearer JWTs.
     if (isNewSupabaseApiKey(supabaseKey) && headers.get('Authorization') === `Bearer ${supabaseKey}`) {
       headers.delete('Authorization');
     }
@@ -26,21 +25,61 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
   };
 }
 
+function createNoopSupabaseClient() {
+  const makeResult = <T>(data: T, error?: { message: string } | null) => ({ data, error: error ?? null });
+
+  const noopQuery = () => ({
+    select() { return this; },
+    eq() { return this; },
+    neq() { return this; },
+    not() { return this; },
+    order() { return this; },
+    limit() { return this; },
+    maybeSingle: async () => makeResult(null),
+    single: async () => makeResult(null),
+    or() { return this; },
+    update() { return this; },
+    insert() { return this; },
+    delete() { return this; },
+    then: (resolve: (value: any) => unknown) => resolve(makeResult([] as any)),
+  });
+
+  return {
+    auth: {
+      getSession: async () => makeResult({ session: null }),
+      signInWithPassword: async () =>
+        makeResult(null, { message: 'Supabase is not configured. Add the env vars in Vercel.' }),
+      signOut: async () => makeResult(null),
+      onAuthStateChange: (callback: (event: string, session: null) => void) => {
+        callback('SIGNED_OUT', null);
+        return { data: { subscription: { unsubscribe() {} } } };
+      },
+    },
+    rpc: async () => makeResult(null, { message: 'Supabase is not configured. Add the env vars in Vercel.' }),
+    from: () => noopQuery(),
+    storage: {
+      from: () => ({
+        upload: async () => makeResult(null, { message: 'Supabase is not configured. Add the env vars in Vercel.' }),
+        createSignedUrl: async () => makeResult(null, { message: 'Supabase is not configured. Add the env vars in Vercel.' }),
+      }),
+    },
+  } as unknown as ReturnType<typeof createClient<Database>>;
+}
 
 function createSupabaseClient() {
-  // Use import.meta.env for client-side (Vite build-time replacement)
-  // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+  const SUPABASE_PUBLISHABLE_KEY =
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || '';
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [
       ...(!SUPABASE_URL ? ['SUPABASE_URL'] : []),
       ...(!SUPABASE_PUBLISHABLE_KEY ? ['SUPABASE_PUBLISHABLE_KEY'] : []),
     ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Connect Supabase in Lovable Cloud.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+    console.warn(
+      `[Supabase] Missing env var(s): ${missing.join(', ')}. Continuing in safe fallback mode so Vercel does not crash.`,
+    );
+    return createNoopSupabaseClient();
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -51,14 +90,12 @@ function createSupabaseClient() {
       storage: typeof window !== 'undefined' ? localStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
-    }
+    },
   });
 }
 
 let _supabase: ReturnType<typeof createSupabaseClient> | undefined;
 
-// Import the supabase client like this:
-// import { supabase } from "@/integrations/supabase/client";
 export const supabase = new Proxy({} as ReturnType<typeof createSupabaseClient>, {
   get(_, prop, receiver) {
     if (!_supabase) _supabase = createSupabaseClient();
